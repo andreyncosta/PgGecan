@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
+# PgGecanPython (GECAN)
 
-## Project info
+Painel executivo com **React + Vite + TypeScript** no frontend e **Django** servindo a API de leitura sobre **SQLite** (`gecan.db`).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Requisitos
 
-## How can I edit this code?
+- Python 3.10+
+- Node.js e npm (para o frontend; **não é necessário nvm**)
 
-There are several ways of editing your application.
+### Node.js sem nvm
 
-**Use Lovable**
+O projeto não depende de **nvm** (nem de fnm, volta, etc.). Qualquer instalação suportada de Node.js com `npm` no `PATH` serve.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+No **Windows**, opções comuns quando nvm está bloqueado por política:
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **Instalador oficial** — [nodejs.org](https://nodejs.org/) (LTS), MSI para o usuário ou para todos.
+2. **winget** (se permitido): `winget install OpenJS.NodeJS.LTS`
+3. **Distribuição corporativa** — pacote aprovado pela TI (MSI/portable); depois confira no terminal: `node -v` e `npm -v`.
 
-**Use your preferred IDE**
+O backend Django roda só com Python; só o passo `npm install` / `npm run dev` exige Node.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Backend (Django)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```powershell
+cd <este repositório>
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python manage.py migrate
+```
 
-Follow these steps:
+Criar o banco e popular (opcional):
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```powershell
+python scripts\seed_from_json.py
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Ou use `python scripts\init_db.py` apenas se não for usar migrações do Django no mesmo arquivo; o fluxo recomendado com Django é só `migrate` + `seed_from_json.py`.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Se você já tem um `gecan.db` criado por `init_db.py` e as tabelas existem, alinhe o histórico do Django com:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```powershell
+python manage.py migrate --fake-initial
+```
+
+Subir o servidor (API em `http://127.0.0.1:8000`):
+
+```powershell
+python manage.py runserver
+```
+
+Endpoints: `GET /api/health`, `GET /api/unidades`, `GET /api/unidades/<id>` — mesmo formato JSON (camelCase) que o app React espera.
+
+Variáveis úteis: `GECAN_DB` (caminho do SQLite), `GECAN_CORS` (origens permitidas, separadas por vírgula), `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
+
+## Frontend (Vite)
+
+```powershell
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Por padrão os dados vêm de `public/data/unidades.json`. Para usar a API Django enquanto desenvolve, copie `env.example` para `.env.local` e defina `VITE_UNIDADES_JSON_URL=/api/unidades`. O `vite.config.ts` encaminha `/api` para `http://127.0.0.1:8000`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Build estático do front
 
-**Use GitHub Codespaces**
+```powershell
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+O resultado fica em `dist/`.
 
-## What technologies are used for this project?
+## Stack
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- Vite, React, TypeScript, Tailwind, shadcn-ui
+- Django 5, django-cors-headers, SQLite
