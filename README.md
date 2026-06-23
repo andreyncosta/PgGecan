@@ -1,76 +1,81 @@
-# PgGecanPython (GECAN)
+# PgGecan — Branch Network Executive Dashboard
 
-Painel executivo com **React + Vite + TypeScript** no frontend e **Django** servindo a API de leitura sobre **SQLite** (`gecan.db`).
+Internal analytics dashboard built for **GECAN** (Channel Strategy team at BRB, Banco de Brasília) to support strategic decision-making around the bank's branch and service point network.
 
-## Requisitos
+---
 
-- Python 3.10+
-- Node.js e npm (para o frontend; **não é necessário nvm**)
+## Overview
 
-### Node.js sem nvm
+BRB operates a distributed network of branches, ATMs, and correspondent banking points across the Federal District and surrounding states. This dashboard centralizes branch-level operational data into a single interface, enabling the channel strategy team to run viability analyses, compare peer performance, and track network evolution over time.
 
-O projeto não depende de **nvm** (nem de fnm, volta, etc.). Qualquer instalação suportada de Node.js com `npm` no `PATH` serve.
+## Tech Stack
 
-No **Windows**, opções comuns quando nvm está bloqueado por política:
+| Layer | Technology |
+|---|---|
+| Frontend | React · TypeScript · Vite · Tailwind CSS · shadcn/ui |
+| Backend | Django 5 · Django REST Framework · SQLite |
+| Build | Vite (frontend) · Python venv (backend) |
 
-1. **Instalador oficial** — [nodejs.org](https://nodejs.org/) (LTS), MSI para o usuário ou para todos.
-2. **winget** (se permitido): `winget install OpenJS.NodeJS.LTS`
-3. **Distribuição corporativa** — pacote aprovado pela TI (MSI/portable); depois confira no terminal: `node -v` e `npm -v`.
+## Architecture
 
-O backend Django roda só com Python; só o passo `npm install` / `npm run dev` exige Node.
+```
+┌───────────────────────────────┐
+│  React + Vite (TypeScript)    │
+│  Tailwind CSS · shadcn/ui     │
+│  → proxies /api to Django     │
+└──────────────┬────────────────┘
+               │ HTTP
+┌──────────────▼────────────────┐
+│  Django REST API              │
+│  GET /api/unidades            │
+│  GET /api/unidades/<id>       │
+└──────────────┬────────────────┘
+               │
+┌──────────────▼────────────────┐
+│  SQLite (gecan.db)            │
+│  Branch network data          │
+└───────────────────────────────┘
+```
 
-## Backend (Django)
+## Getting Started
 
-```powershell
-cd <este repositório>
+### Backend (Django)
+
+```bash
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+source .venv/bin/activate        # Windows: .venv\Scriptsctivate
 pip install -r requirements.txt
 python manage.py migrate
+python scripts/seed_from_json.py  # populate from JSON seed data
+python manage.py runserver        # API at http://127.0.0.1:8000
 ```
 
-Criar o banco e popular (opcional):
+### Frontend (Vite)
 
-```powershell
-python scripts\seed_from_json.py
-```
-
-Ou use `python scripts\init_db.py` apenas se não for usar migrações do Django no mesmo arquivo; o fluxo recomendado com Django é só `migrate` + `seed_from_json.py`.
-
-Se você já tem um `gecan.db` criado por `init_db.py` e as tabelas existem, alinhe o histórico do Django com:
-
-```powershell
-python manage.py migrate --fake-initial
-```
-
-Subir o servidor (API em `http://127.0.0.1:8000`):
-
-```powershell
-python manage.py runserver
-```
-
-Endpoints: `GET /api/health`, `GET /api/unidades`, `GET /api/unidades/<id>` — mesmo formato JSON (camelCase) que o app React espera.
-
-Variáveis úteis: `GECAN_DB` (caminho do SQLite), `GECAN_CORS` (origens permitidas, separadas por vírgula), `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
-
-## Frontend (Vite)
-
-```powershell
+```bash
 npm install
+cp env.example .env.local
+# set VITE_UNIDADES_JSON_URL=/api/unidades to use the Django backend
 npm run dev
 ```
 
-Por padrão os dados vêm de `public/data/unidades.json`. Para usar a API Django enquanto desenvolve, copie `env.example` para `.env.local` e defina `VITE_UNIDADES_JSON_URL=/api/unidades`. O `vite.config.ts` encaminha `/api` para `http://127.0.0.1:8000`.
+### Production build
 
-## Build estático do front
-
-```powershell
-npm run build
+```bash
+npm run build   # output in dist/
 ```
 
-O resultado fica em `dist/`.
+## API Reference
 
-## Stack
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check |
+| `GET` | `/api/unidades` | List all branch units |
+| `GET` | `/api/unidades/<id>` | Branch detail |
 
-- Vite, React, TypeScript, Tailwind, shadcn-ui
-- Django 5, django-cors-headers, SQLite
+Response format: camelCase JSON.
+
+---
+
+**Built by [Andrey Costa](https://andreycosta.com) — GECAN / BRB**
+
