@@ -12,7 +12,9 @@ SECRET_KEY = os.environ.get(
     "django-insecure-dev-only-change-in-production",
 )
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") not in ("0", "false", "False")
+# Defaults to False — set DJANGO_DEBUG=1 explicitly for local development.
+# Never deploy with DEBUG=True: it exposes stack traces and DB queries.
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") not in ("0", "false", "False")
 
 ALLOWED_HOSTS = [
     h.strip()
@@ -69,3 +71,4 @@ _cors = os.environ.get(
 )
 CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors.split(",") if o.strip()]
 CORS_ALLOW_CREDENTIALS = True
+
