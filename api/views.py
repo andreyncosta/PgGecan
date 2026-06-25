@@ -24,7 +24,7 @@ def health(request):
 def list_unidades(request):
     if not _db_path().is_file():
         return JsonResponse(
-            {"detail": f"Database not found: {_db_path()}"},
+            {"detail": "Database unavailable"},
             status=503,
         )
     rows = Unidade.objects.all().order_by("id")
@@ -35,7 +35,7 @@ def list_unidades(request):
 def get_unidade(request, unidade_id: int):
     if not _db_path().is_file():
         return JsonResponse(
-            {"detail": f"Database not found: {_db_path()}"},
+            {"detail": "Database unavailable"},
             status=503,
         )
     try:
