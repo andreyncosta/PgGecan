@@ -72,3 +72,28 @@ _cors = os.environ.get(
 CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors.split(",") if o.strip()]
 CORS_ALLOW_CREDENTIALS = True
 
+# ---------------------------------------------------------------------------
+# Security hardening
+# SecurityMiddleware (already in MIDDLEWARE) honours these settings.
+# The two boolean flags are safe to enable regardless of DEBUG state.
+# The SSL/HSTS/cookie flags are gated on DEBUG=False so local dev isn't broken.
+# ---------------------------------------------------------------------------
+
+# Prevent browsers from MIME-type-sniffing responses away from declared Content-Type
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Emit X-Frame-Options: DENY on every response (clickjacking protection)
+X_FRAME_OPTIONS = "DENY"
+
+if not DEBUG:
+    # Redirect all HTTP traffic to HTTPS
+    SECURE_SSL_REDIRECT = True
+
+    # Instruct browsers to use HTTPS for 2 years, including subdomains
+    SECURE_HSTS_SECONDS = 63_072_000  # 2 years
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Mark session and CSRF cookies as Secure (HTTPS-only)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
