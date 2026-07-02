@@ -85,6 +85,11 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 # Emit X-Frame-Options: DENY on every response (clickjacking protection)
 X_FRAME_OPTIONS = "DENY"
 
+# Control how much referrer information is sent with requests.
+# strict-origin-when-cross-origin: full URL for same-origin, only origin for
+# cross-origin HTTPS→HTTPS, nothing for HTTPS→HTTP.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 if not DEBUG:
     # Redirect all HTTP traffic to HTTPS
     SECURE_SSL_REDIRECT = True
