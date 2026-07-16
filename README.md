@@ -50,6 +50,8 @@ python scripts/seed_from_json.py  # populate from JSON seed data
 python manage.py runserver        # API at http://127.0.0.1:8000
 ```
 
+**Environment variables:** Django reads `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `GECAN_DB`, and `GECAN_CORS` directly from the process environment (see `config/settings.py`). Unlike the frontend, there's no `.env` autoloading here — export these in your shell or process manager before running `manage.py`. `env.example` documents each variable and includes the command to generate a key. The built-in `SECRET_KEY` fallback is fine for local development only; **for any production deployment, set `DJANGO_SECRET_KEY` explicitly** and confirm `DJANGO_DEBUG` is unset or `0`.
+
 ### Frontend (Vite)
 
 ```bash
