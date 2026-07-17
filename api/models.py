@@ -76,6 +76,14 @@ class Unidade(models.Model):
         ordering = ["id"]
 
     def to_api_dict(self) -> dict:
+        """Serialize this Unidade to the camelCase JSON shape consumed by the
+        React frontend (see src/lib/mock-data.ts 'Unidade' type).
+
+        Every field falls back to a zero-ish default (0, 0.0, or "") when the
+        underlying column is NULL, so the frontend never has to null-check.
+        Column names are translated from this model's snake_case (matching
+        db/schema.sql) to the frontend's camelCase.
+        """
         row = self
         return {
             "id": row.id,
