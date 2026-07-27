@@ -43,7 +43,7 @@ BRB operates a distributed network of branches, ATMs, and correspondent banking 
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scriptsctivate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python scripts/seed_from_json.py  # populate from JSON seed data
